@@ -1,22 +1,33 @@
 const request = require("request");
-const fetch = require('node-fetch')
-const args = process.argv[2];
-const breed = args;
-const url =`https://api.thecatapi.com/v1/breeds/search?q=${breed}`;
+const fetch = require('node-fetch');
 
-if (breed === undefined) {
-  console.log("Please enter the breed name!");
-} else {
-  fetch(url)
-  .then(response =>
-    response.json())
-  .then(json => {
-  if (json.length === 0) {
-    console.log(`${breed} No found `);
+
+const fetchBreedDescription = function (breedName, callback) {
+
+  const url = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
+
+  if (breedName === undefined) {
+
+    console.log("Please enter the breed name!");
+  } else if (!isNaN(breedName)) {
+
+    callback(null, "error");
+
   } else {
-    console.log(json);
-  }})
-  .catch ((error) => {
-    console.log(error);
-  });
-}
+    
+    fetch(url)
+      .then(response =>
+        response.json())
+      .then(json => {
+        if (json.length === 0) {
+          console.log(`${breedName} No found `);
+        } else {
+          callback(null, json[0].description);
+        }
+      })
+      .catch((error) => {
+        throw error;
+      });
+  }
+};
+module.exports = { fetchBreedDescription };
